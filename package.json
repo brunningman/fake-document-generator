@@ -1,0 +1,29 @@
+{
+  "name": "fake-pdf-generator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "generate:cor-log": "npm run build && node dist/generate-cor-log.js",
+    "generate:preformatted-cor-csv": "npm run build && node dist/generate-preformatted-cor-csv.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "^24.5.0",
+    "@types/sharp": "^0.31.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "@faker-js/faker": "^10.0.0",
+    "exceljs": "^4.4.0",
+    "pdf-lib": "^1.17.1",
+    "playwright": "^1.55.0",
+    "sharp": "^0.34.3"
+  }
+}
