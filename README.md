@@ -47,8 +47,15 @@ The project is configured with an npm script to handle the entire generation pro
     npm run generate:cor-log
     ```
 
+    To generate a preformatted COR log for bulk import, run:
+
+    ```bash
+    npm run generate:preformatted-cor-csv
+    ```
+
 2.  **Check the output:**
-    The script will automatically clear and then populate the `artefacts/cor-logs` directory with a fresh batch of 16 documents, featuring 4 different row counts and 4 different file formats.
+    - The `generate:cor-log` script will automatically clear and then populate the `artefacts/cor-logs` directory with a fresh batch of 16 documents, featuring 4 different row counts and 4 different file formats.
+    - The `generate:preformatted-cor-csv` script will populate the `artefacts/preformatted-cor-logs` directory with a single CSV file containing 80 rows of data.
 
 ## Extending the Generator
 
