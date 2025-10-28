@@ -21,7 +21,6 @@ export interface ChangeOrder {
   dateSent?: Date;
   amountSent?: string;
   daysPending?: number | null;
-  dateApproved?: Date | null;
   amountApproved?: string | null;
   amountPending?: string;
   gcCO?: string | null;

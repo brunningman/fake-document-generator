@@ -57,16 +57,11 @@ const masterColumnPool: Record<string, ColumnDefinition> = {
     variants: ["Approved Amt"],
     type: "currency",
   },
-  dateApproved: {
-    header: "Date Approved",
-    variants: ["Approved Date"],
-    type: "date",
-  },
   gcCO: { header: "GC CO#", variants: ["GC Change Order"], type: "id" },
   quoteType: { header: "Quote Type", variants: ["Type"], type: "string" },
   approvedDate: {
     header: "Approved Date",
-    variants: ["Date Approved", "Approved On"],
+    variants: ["Date Approved", "Approved On", "Approved Date"],
     type: "date",
   },
   coIssuedDate: { header: "CO Issued Date", variants: [], type: "date" },
@@ -134,23 +129,34 @@ export function shapeChangeOrderLog(count: number): ShapedData {
       order.status = null;
     }
 
-    // Handle date logic based on status
-    if (order.status) {
-      order.quoteDate = generateDateRecent();
-      if (order.status === "Approved") {
-        order.approvedDate = generateDateRecent();
-        order.voidDate = null;
-      } else if (order.status === "Void") {
-        order.voidDate = generateDateRecent();
-        order.approvedDate = null;
-      } else {
-        order.approvedDate = null;
-        order.voidDate = null;
-      }
+    // Handle date logic based on status or other date fields
+    const hasStatus = includedColumns.includes("status");
+    order.quoteDate = generateDateRecent(); // Always generate a quote date
+
+    if (
+      (hasStatus && order.status === "Approved") ||
+      (!hasStatus && generateBoolean())
+    ) {
+      order.approvedDate = generateDateRecent();
+      order.voidDate = null;
+      if (hasStatus) order.status = "Approved";
+    } else if (
+      (hasStatus && order.status === "Void") ||
+      (!hasStatus && generateBoolean())
+    ) {
+      order.voidDate = generateDateRecent();
+      order.approvedDate = null;
+      if (hasStatus) order.status = "Void";
     } else {
-      order.quoteDate = null;
       order.approvedDate = null;
       order.voidDate = null;
+      if (
+        hasStatus &&
+        order.status !== "In Review" &&
+        order.status !== "Submitted"
+      ) {
+        order.status = "Submitted";
+      }
     }
 
     // Generate other fields
