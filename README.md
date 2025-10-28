@@ -7,9 +7,16 @@ It is designed to be extensible, allowing for the addition of new document types
 ## Current Features
 
 - **Change Order Log Generation:** The primary module generates highly varied and realistic Change Order Logs (CORs) based on real-world samples.
-- **Multiple Formats:** Outputs documents in four formats: PDF, PNG, CSV, and XLSX.
+- **Multiple Formats:** Outputs documents in five formats: PDF, PNG, CSV, XLSX, and a "golden data" JSON.
+- **Golden Data JSON:** For each generated document, a corresponding JSON file is created with the headers and rows of the table data. This is ideal for validating LLM parsing and extraction.
 - **High-Fidelity Rendering:** Uses a headless browser (Playwright) to render HTML templates into pixel-perfect PDFs and images, allowing for complex layouts and styling.
 - **Dynamic & Randomized Data:** Each run produces a unique set of documents with a random combination of columns, header names, and data points, ensuring a wide variety of test cases.
+- **Realistic Scenarios:** The data generation logic includes rules to create more realistic documents, such as:
+  - Optional, multi-line page headers that may or may not precede the main table.
+  - Consistent `pcoNum` formatting within a single document.
+  - Randomly skipped `pcoNum` values to simulate real-world logs.
+  - Revision numbers incorporated directly into the `pcoNum` (e.g., `CO 1.1`).
+  - Data consistency between `status` and date columns.
 
 ## Architecture
 
@@ -54,7 +61,7 @@ The project is configured with an npm script to handle the entire generation pro
     ```
 
 2.  **Check the output:**
-    - The `generate:cor-log` script will automatically clear and then populate the `artefacts/cor-logs` directory with a fresh batch of 16 documents, featuring 4 different row counts and 4 different file formats.
+    - The `generate:cor-log` script will automatically clear and then populate the `artefacts/cor-logs` directory with a fresh batch of documents, featuring 4 different row counts and 5 different file formats.
     - The `generate:preformatted-cor-csv` script will populate the `artefacts/preformatted-cor-logs` directory with a single CSV file containing 80 rows of data.
 
 ## Extending the Generator
