@@ -9,6 +9,7 @@ export function createChangeOrderLogHtml(shapedData: ShapedData): string {
     headers,
     data,
     includedColumns,
+    pageHeader,
   } = shapedData;
 
   // Dynamically generate header cells
@@ -42,11 +43,10 @@ export function createChangeOrderLogHtml(shapedData: ShapedData): string {
       <style>
         body {
           font-family: Helvetica, Arial, sans-serif;
-          font-size: 12px;
+          font-size: 8px;
         }
         @page {
           size: landscape;
-          margin: 1in;
         }
         table {
           width: 100%;
@@ -75,9 +75,13 @@ export function createChangeOrderLogHtml(shapedData: ShapedData): string {
     <body>
       <h1>${documentTitle}</h1>
       <div class="header-info">
-        <div><strong>Project:</strong> ${project}</div>
-        <div><strong>From:</strong> ${subcontractor}</div>
-        <div><strong>To:</strong> ${generalContractor}</div>
+        ${
+          pageHeader
+            ? `<pre>${pageHeader}</pre>`
+            : `<div><strong>Project:</strong> ${project}</div>
+               <div><strong>From:</strong> ${subcontractor}</div>
+               <div><strong>To:</strong> ${generalContractor}</div>`
+        }
       </div>
       <table>
         <thead>

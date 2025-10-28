@@ -15,10 +15,10 @@ export async function renderToPdf(shapedData: ShapedData): Promise<Buffer> {
     landscape: true,
     printBackground: true,
     margin: {
-      top: "1in",
-      right: "1in",
-      bottom: "1in",
-      left: "1in",
+      top: "0.25in",
+      right: "0.25in",
+      bottom: "0.25in",
+      left: "0.25in",
     },
   });
 

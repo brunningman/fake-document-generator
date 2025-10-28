@@ -3,9 +3,9 @@
 export interface ChangeOrder {
   // Core Fields (mostly non-nullable)
   pcoNum?: string; // Can be a number or string like "-012"
-  status?: string;
+  status?: string | null;
   description?: string;
-  quoteDate?: Date;
+  quoteDate?: Date | null;
   totalQuote?: string; // Formatted currency
 
   // Optional & Mixed Fields from both samples
@@ -25,6 +25,9 @@ export interface ChangeOrder {
   amountApproved?: string | null;
   amountPending?: string;
   gcCO?: string | null;
+  approvedDate?: Date | null;
+  coIssuedDate?: Date | null;
+  voidDate?: Date | null;
 }
 
 export type ShapedData = {
@@ -43,6 +46,7 @@ export type ShapedData = {
     changesApproved: string;
     revisedContract: string;
   };
+  pageHeader?: string | undefined;
 };
 
 export type PreformattedCorData = {
@@ -60,3 +64,11 @@ export type PreformattedCorData = {
   tm_tag_number: string | null;
   void_date: string | null;
 };
+
+export interface Allowance {
+  allowanceName: string;
+  customerReferenceNumber?: string | undefined;
+  allowanceType: "hold" | "contingency" | "allowance";
+  allowanceValue: number;
+  contract?: string | undefined;
+}

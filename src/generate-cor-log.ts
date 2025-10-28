@@ -5,6 +5,7 @@ import { renderToCsv } from "./document-rendering/to-csv.js";
 import { renderToPdf } from "./document-rendering/to-pdf.js";
 import { renderToImage } from "./document-rendering/to-image.js";
 import { renderToXlsx } from "./document-rendering/to-xlsx.js";
+import { renderToJson } from "./document-rendering/to-json.js";
 
 async function main() {
   const outputDir = "artefacts/cor-logs";
@@ -59,6 +60,12 @@ async function main() {
     const xlsxPath = path.join(outputDir, `${baseFileName}.xlsx`);
     await fs.writeFile(xlsxPath, xlsxContent);
     console.log(`  - Created ${xlsxPath}`);
+
+    // Golden JSON
+    const jsonContent = renderToJson(shapedData);
+    const jsonPath = path.join(outputDir, `${baseFileName}.json`);
+    await fs.writeFile(jsonPath, jsonContent);
+    console.log(`  - Created ${jsonPath}`);
   }
 
   console.log("\nBatch generation complete.");

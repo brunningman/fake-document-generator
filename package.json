@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
     "generate:cor-log": "npm run build && node dist/generate-cor-log.js",
-    "generate:preformatted-cor-csv": "npm run build && node dist/generate-preformatted-cor-csv.js"
+    "generate:preformatted-cor-csv": "npm run build && node dist/generate-preformatted-cor-csv.js",
+    "generate:allowance-log": "npm run build && node dist/generate-allowance-log.js"
   },
   "keywords": [],
   "author": "",

@@ -30,20 +30,27 @@ type ColumnDefinition = { header: string; variants: string[]; type: string };
 
 // Master pool of all possible columns from all samples
 const masterColumnPool: Record<string, ColumnDefinition> = {
-  pcoNum: { header: "PCO #", variants: ["Change #"], type: "id" },
+  pcoNum: {
+    header: "PCO #",
+    variants: ["Change #", "PCI #", "CO Num", "PO #"],
+    type: "id",
+  },
   status: { header: "Status", variants: ["Stat."], type: "status" },
   description: {
     header: "Description",
     variants: ["Scope"],
     type: "description",
   },
-  quoteDate: { header: "Quote Date", variants: ["Date"], type: "date" },
+  quoteDate: {
+    header: "Quote Date",
+    variants: ["Date", "Submitted Date", "Sent On"],
+    type: "date",
+  },
   totalQuote: {
     header: "Total Quote",
-    variants: ["Amount", "Value"],
+    variants: ["Amount", "Value", "Cost"],
     type: "currency",
   },
-  revision: { header: "Revision", variants: ["Rev"], type: "revision" },
   notes: { header: "Notes", variants: ["Comments"], type: "notes" },
   amountApproved: {
     header: "Amount Approved",
@@ -57,6 +64,17 @@ const masterColumnPool: Record<string, ColumnDefinition> = {
   },
   gcCO: { header: "GC CO#", variants: ["GC Change Order"], type: "id" },
   quoteType: { header: "Quote Type", variants: ["Type"], type: "string" },
+  approvedDate: {
+    header: "Approved Date",
+    variants: ["Date Approved", "Approved On"],
+    type: "date",
+  },
+  coIssuedDate: { header: "CO Issued Date", variants: [], type: "date" },
+  voidDate: {
+    header: "Void Date",
+    variants: ["Voided On", "Cancelled On"],
+    type: "date",
+  },
 };
 
 // Main "shaper" function
@@ -72,6 +90,7 @@ export function shapeChangeOrderLog(count: number): ShapedData {
     "pcoNum",
     "description",
     "totalQuote",
+    "quoteDate",
   ]; // Core columns
   for (const key of columnKeys) {
     if (!includedColumns.includes(key) && generateBoolean()) {
@@ -92,60 +111,85 @@ export function shapeChangeOrderLog(count: number): ShapedData {
   }, {} as Record<string, string>);
 
   const changeOrders: ChangeOrder[] = [];
+  const coNumPrefix = ["PCO-", "CO ", ""][Math.floor(Math.random() * 3)];
+  let coNumCounter = 1;
+
   for (let i = 0; i < count; i++) {
-    const order = {} as ChangeOrder; // Start with an empty object and assert its type
+    const order = {} as ChangeOrder;
     const amount = generateCurrencyAmount();
 
-    // Generate data for each selected column
-    for (const key of includedColumns) {
-      if (
-        !["pcoNum", "description", "totalQuote"].includes(key) &&
-        generateBoolean()
-      ) {
-        (order as any)[key] = null;
-        continue;
-      }
+    // Generate status first to drive date logic
+    if (includedColumns.includes("status")) {
+      const statuses = ["Submitted", "In Review", "Approved", "Void", null];
+      order.status = statuses[Math.floor(Math.random() * statuses.length)] as
+        | string
+        | null;
+    } else {
+      order.status = null;
+    }
 
-      const columnType = masterColumnPool[key]?.type;
-      switch (columnType) {
-        case "id":
-          (order as any)[key] = `${generateBoolean() ? "-" : ""}${i + 1}`;
-          break;
-        case "status":
-          (order as any)[key] = [
-            "Submitted",
-            "In Review",
-            "Approved",
-            "Quote in Process",
-          ][Math.floor(Math.random() * 4)];
-          break;
-        case "description":
-          (order as any)[key] = `${
-            ["RFI", "ASI"][Math.floor(Math.random() * 2)]
-          } #${Math.floor(Math.random() * 1000)} - ${generateSentence(4)}`;
-          break;
-        case "date":
-          (order as any)[key] = generateDateRecent();
-          break;
-        case "currency":
-          (order as any)[key] = formatCurrency(
-            amount,
-            useParenthesesForNegative
-          );
-          break;
-        case "revision":
-          (order as any)[key] = generateBoolean()
-            ? Math.floor(Math.random() * 5)
-            : "XXX";
-          break;
-        case "notes":
-          (order as any)[key] = generateBoolean() ? generateSentence(8) : "";
-          break;
-        case "string":
-          (order as any)[key] = generateSentence(1);
-          break;
+    // Handle date logic based on status
+    if (order.status) {
+      order.quoteDate = generateDateRecent();
+      if (order.status === "Approved") {
+        order.approvedDate = generateDateRecent();
+        order.voidDate = null;
+      } else if (order.status === "Void") {
+        order.voidDate = generateDateRecent();
+        order.approvedDate = null;
+      } else {
+        order.approvedDate = null;
+        order.voidDate = null;
+      }
+    } else {
+      order.quoteDate = null;
+      order.approvedDate = null;
+      order.voidDate = null;
+    }
+
+    // Generate other fields
+    if (i > 0 && generateBoolean()) {
+      // Skip a number
+      coNumCounter += Math.floor(Math.random() * 2);
+    }
+    const revision = generateBoolean()
+      ? `.${Math.floor(Math.random() * 5) + 1}`
+      : "";
+    order.pcoNum = `${coNumPrefix}${coNumCounter}${revision}`;
+    coNumCounter++;
+
+    order.description = `${
+      ["RFI", "ASI"][Math.floor(Math.random() * 2)]
+    } #${Math.floor(Math.random() * 1000)} - ${generateSentence(4)}`;
+    order.totalQuote = formatCurrency(amount, useParenthesesForNegative);
+
+    if (includedColumns.includes("notes")) {
+      order.notes = generateBoolean() ? generateSentence(8) : "";
+    }
+    if (includedColumns.includes("gcCO")) {
+      order.gcCO = `GC-CO-${i + 1}`;
+    }
+    if (includedColumns.includes("quoteType")) {
+      order.quoteType = generateSentence(1);
+    }
+    if (includedColumns.includes("amountApproved")) {
+      order.amountApproved =
+        order.status === "Approved"
+          ? formatCurrency(amount * 0.9, useParenthesesForNegative)
+          : null;
+    }
+    if (includedColumns.includes("coIssuedDate")) {
+      order.coIssuedDate =
+        order.status === "Approved" ? generateDateRecent() : null;
+    }
+
+    // Null out fields that are not included in this run
+    for (const key of Object.keys(order) as (keyof ChangeOrder)[]) {
+      if (!includedColumns.includes(key)) {
+        (order as any)[key] = undefined;
       }
     }
+
     changeOrders.push(order);
   }
 
@@ -158,6 +202,26 @@ export function shapeChangeOrderLog(count: number): ShapedData {
   const documentTitle =
     documentTitles[Math.floor(Math.random() * documentTitles.length)]!;
 
+  let pageHeader: string | undefined;
+  if (generateBoolean()) {
+    const headerLines = [
+      `Project: ${project}`,
+      `To: ${generalContractor}`,
+      `From: ${subcontractor}`,
+      `Date: ${generateDateRecent().toLocaleDateString()}`,
+    ];
+    // Randomly shuffle and pick a subset of lines
+    const shuffledLines = headerLines.sort(() => 0.5 - Math.random());
+    const selectedLines = shuffledLines.slice(
+      0,
+      Math.floor(Math.random() * headerLines.length) + 1
+    );
+
+    // Add some random blank lines
+    const blankLines = "\n".repeat(Math.floor(Math.random() * 4));
+    pageHeader = selectedLines.join("\n") + blankLines;
+  }
+
   return {
     documentTitle,
     subcontractor,
@@ -166,5 +230,6 @@ export function shapeChangeOrderLog(count: number): ShapedData {
     headers,
     data: changeOrders,
     includedColumns,
+    pageHeader,
   };
 }

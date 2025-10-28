@@ -10,6 +10,7 @@ export async function renderToXlsx(shapedData: ShapedData): Promise<Buffer> {
     headers,
     data,
     includedColumns,
+    pageHeader,
   } = shapedData;
 
   const workbook = new ExcelJS.Workbook();
@@ -22,16 +23,32 @@ export async function renderToXlsx(shapedData: ShapedData): Promise<Buffer> {
   worksheet.getCell("A1").font = { bold: true, size: 16 };
   worksheet.getCell("A1").alignment = { horizontal: "center" };
 
-  worksheet.getCell("A3").value = "Project:";
-  worksheet.getCell("B3").value = project;
-  worksheet.getCell("A4").value = "From:";
-  worksheet.getCell("B4").value = subcontractor;
-  worksheet.getCell("A5").value = "To:";
-  worksheet.getCell("B5").value = generalContractor;
+  let currentRow = 3;
+  if (pageHeader) {
+    const headerLines = pageHeader.split("\n");
+    headerLines.forEach((line) => {
+      worksheet.getCell(`A${currentRow}`).value = line;
+      currentRow++;
+    });
+  } else {
+    worksheet.getCell("A3").value = "Project:";
+    worksheet.getCell("B3").value = project;
+    worksheet.getCell("A4").value = "From:";
+    worksheet.getCell("B4").value = subcontractor;
+    worksheet.getCell("A5").value = "To:";
+    worksheet.getCell("B5").value = generalContractor;
+    currentRow = 6;
+  }
+  worksheet.getRow(currentRow).values = [];
+  currentRow++;
 
   // Add table headers dynamically
   const headerValues = includedColumns.map((key) => headers[key] ?? "");
   const headerRow = worksheet.addRow(headerValues);
+  if (headerRow.model) {
+    headerRow.model.outlineLevel = 0;
+  }
+  headerRow.font = { bold: true };
   headerRow.font = { bold: true };
 
   // Add data rows dynamically

@@ -1,5 +1,3 @@
-import type { ShapedData } from "../types.js";
-
 // Helper to quote CSV fields if they contain commas or quotes
 function escapeCsvField(field: any): string {
   if (field === null || field === undefined) {
@@ -16,17 +14,18 @@ function escapeCsvField(field: any): string {
   return stringField;
 }
 
-export function renderToCsv(shapedData: ShapedData): string {
-  const { documentTitle, headers, data, includedColumns, pageHeader } =
-    shapedData;
+interface SimpleCsvInput<T> {
+  headers: Record<keyof T, string>;
+  data: T[];
+  includedColumns: (keyof T)[];
+}
+
+export function renderToSimpleCsv<T extends Record<string, any>>(
+  csvInput: SimpleCsvInput<T>
+): string {
+  const { headers, data, includedColumns } = csvInput;
 
   let csv = "";
-
-  // Add headers
-  csv += `${documentTitle}\n`;
-  if (pageHeader) {
-    csv += `${pageHeader}\n`;
-  }
 
   // Add table headers dynamically
   const headerValues = includedColumns.map((key) => headers[key] ?? "");
@@ -36,9 +35,6 @@ export function renderToCsv(shapedData: ShapedData): string {
   data.forEach((row) => {
     const rowValues = includedColumns.map((key) => {
       const value = row[key];
-      if (value instanceof Date) {
-        return value.toISOString().split("T")[0];
-      }
       return escapeCsvField(value);
     });
     csv += `${rowValues.join(",")}\n`;
