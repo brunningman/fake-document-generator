@@ -116,7 +116,13 @@ export function shapeChangeOrderLog(count: number): ShapedData {
 
   for (let i = 0; i < count; i++) {
     const order = {} as ChangeOrder;
-    const amount = generateCurrencyAmount();
+    let amount = generateCurrencyAmount();
+    const randomCase = Math.random();
+    if (randomCase < 0.1) {
+      amount = NaN; // Will result in an empty string
+    } else if (randomCase < 0.2) {
+      amount = 0;
+    }
 
     // Generate status first to drive date logic
     if (includedColumns.includes("status")) {
@@ -161,7 +167,9 @@ export function shapeChangeOrderLog(count: number): ShapedData {
     order.description = `${
       ["RFI", "ASI"][Math.floor(Math.random() * 2)]
     } #${Math.floor(Math.random() * 1000)} - ${generateSentence(4)}`;
-    order.totalQuote = formatCurrency(amount, useParenthesesForNegative);
+    order.totalQuote = !isNaN(amount)
+      ? formatCurrency(amount, useParenthesesForNegative)
+      : "";
 
     if (includedColumns.includes("notes")) {
       order.notes = generateBoolean() ? generateSentence(8) : "";
