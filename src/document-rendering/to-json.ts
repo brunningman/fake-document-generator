@@ -12,7 +12,9 @@ export function renderToJson(shapedData: ShapedData): string {
       if (header) {
         const value = row[key];
         if (value instanceof Date) {
-          rowData[header] = value.toISOString().split("T");
+          rowData[header] = value.toLocaleDateString("en-US");
+        } else if (typeof value === "number") {
+          rowData[header] = value;
         } else {
           rowData[header] = value;
         }

@@ -9,22 +9,6 @@ import {
 } from "../data-generation/common.js";
 import type { ChangeOrder, ShapedData } from "../types.js";
 
-// Helper to format currency
-function formatCurrency(
-  amount: number,
-  useParenthesesForNegative: boolean
-): string {
-  const options: Intl.NumberFormatOptions = {
-    style: "currency",
-    currency: "USD",
-  };
-  const formatted = new Intl.NumberFormat("en-US", options).format(amount);
-  if (amount < 0 && useParenthesesForNegative) {
-    return `(${formatted.replace("-", "")})`;
-  }
-  return formatted;
-}
-
 // Define a type for our column definitions
 type ColumnDefinition = { header: string; variants: string[]; type: string };
 
@@ -111,7 +95,7 @@ export function shapeChangeOrderLog(count: number): ShapedData {
 
   for (let i = 0; i < count; i++) {
     const order = {} as ChangeOrder;
-    let amount = generateCurrencyAmount();
+    let amount = Number(generateCurrencyAmount().toFixed(2));
     const randomCase = Math.random();
     if (randomCase < 0.1) {
       amount = NaN; // Will result in an empty string
@@ -173,9 +157,7 @@ export function shapeChangeOrderLog(count: number): ShapedData {
     order.description = `${
       ["RFI", "ASI"][Math.floor(Math.random() * 2)]
     } #${Math.floor(Math.random() * 1000)} - ${generateSentence(4)}`;
-    order.totalQuote = !isNaN(amount)
-      ? formatCurrency(amount, useParenthesesForNegative)
-      : "";
+    order.totalQuote = !isNaN(amount) ? amount : null;
 
     if (includedColumns.includes("notes")) {
       order.notes = generateBoolean() ? generateSentence(8) : "";
@@ -189,7 +171,7 @@ export function shapeChangeOrderLog(count: number): ShapedData {
     if (includedColumns.includes("amountApproved")) {
       order.amountApproved =
         order.status === "Approved"
-          ? formatCurrency(amount * 0.9, useParenthesesForNegative)
+          ? Number((amount * Math.random()).toFixed(2))
           : null;
     }
     if (includedColumns.includes("coIssuedDate")) {
@@ -245,5 +227,6 @@ export function shapeChangeOrderLog(count: number): ShapedData {
     data: changeOrders,
     includedColumns,
     pageHeader,
+    useParenthesesForNegative,
   };
 }

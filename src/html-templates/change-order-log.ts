@@ -1,3 +1,4 @@
+import { formatCurrency } from "../document-rendering/common.js";
 import type { ShapedData } from "../types.js";
 
 export function createChangeOrderLogHtml(shapedData: ShapedData): string {
@@ -11,6 +12,7 @@ export function createChangeOrderLogHtml(shapedData: ShapedData): string {
     includedColumns,
     pageHeader,
   } = shapedData;
+  const { useParenthesesForNegative } = shapedData;
 
   // Dynamically generate header cells
   const headerHtml = includedColumns
@@ -26,6 +28,12 @@ export function createChangeOrderLogHtml(shapedData: ShapedData): string {
           // Handle date formatting and null/undefined values
           if (value instanceof Date) {
             return `<td>${value.toISOString().split("T")[0]}</td>`;
+          }
+          if (typeof value === "number") {
+            return `<td>${formatCurrency(
+              value,
+              useParenthesesForNegative
+            )}</td>`;
           }
           return `<td>${value ?? ""}</td>`;
         })

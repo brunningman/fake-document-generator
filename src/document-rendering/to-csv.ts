@@ -1,4 +1,5 @@
 import type { ShapedData } from "../types.js";
+import { formatCurrency } from "./common.js";
 
 // Helper to quote CSV fields if they contain commas or quotes
 function escapeCsvField(field: any): string {
@@ -19,6 +20,7 @@ function escapeCsvField(field: any): string {
 export function renderToCsv(shapedData: ShapedData): string {
   const { documentTitle, headers, data, includedColumns, pageHeader } =
     shapedData;
+  const { useParenthesesForNegative } = shapedData;
 
   let csv = "";
 
@@ -37,7 +39,10 @@ export function renderToCsv(shapedData: ShapedData): string {
     const rowValues = includedColumns.map((key) => {
       const value = row[key];
       if (value instanceof Date) {
-        return value.toISOString().split("T")[0];
+        return value.toISOString().split("T");
+      }
+      if (typeof value === "number") {
+        return formatCurrency(value, useParenthesesForNegative);
       }
       return escapeCsvField(value);
     });

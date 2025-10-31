@@ -6,7 +6,7 @@ export interface ChangeOrder {
   status?: string | null;
   description?: string;
   quoteDate?: Date | null;
-  totalQuote?: string; // Formatted currency
+  totalQuote?: number | null; // Formatted currency
 
   // Optional & Mixed Fields from both samples
   revision?: string | number;
@@ -14,15 +14,15 @@ export interface ChangeOrder {
   quoteType?: string | null;
   ownerCONum?: string | null;
   ownerCODate?: Date | null;
-  ownerCOValue?: string | null;
+  ownerCOValue?: number | null;
   notes?: string | null;
   cwPropNum?: number;
   gcPropNum?: number | null;
   dateSent?: Date;
-  amountSent?: string;
+  amountSent?: number;
   daysPending?: number | null;
-  amountApproved?: string | null;
-  amountPending?: string;
+  amountApproved?: number | null;
+  amountPending?: number;
   gcCO?: string | null;
   approvedDate?: Date | null;
   coIssuedDate?: Date | null;
@@ -37,6 +37,7 @@ export type ShapedData = {
   headers: Record<string, string>;
   data: ChangeOrder[];
   includedColumns: (keyof ChangeOrder)[];
+  useParenthesesForNegative: boolean;
   // Optional fields for complex headers
   projectNumber?: string;
   contractSummary?: {

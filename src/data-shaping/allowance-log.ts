@@ -1,3 +1,4 @@
+import { generateBoolean } from "../data-generation/common.js";
 import type { Allowance } from "../types.js";
 
 export function shapeAllowanceData(data: Allowance[]) {
@@ -23,5 +24,6 @@ export function shapeAllowanceData(data: Allowance[]) {
     headers,
     data: shapedData,
     includedColumns,
+    useParenthesesForNegative: generateBoolean(),
   };
 }

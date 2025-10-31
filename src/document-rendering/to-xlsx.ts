@@ -1,5 +1,6 @@
 import ExcelJS from "exceljs";
 import type { ShapedData } from "../types.js";
+import { formatCurrency } from "./common.js";
 
 export async function renderToXlsx(shapedData: ShapedData): Promise<Buffer> {
   const {
@@ -12,6 +13,7 @@ export async function renderToXlsx(shapedData: ShapedData): Promise<Buffer> {
     includedColumns,
     pageHeader,
   } = shapedData;
+  const { useParenthesesForNegative } = shapedData;
 
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet("Change Orders");
@@ -55,6 +57,9 @@ export async function renderToXlsx(shapedData: ShapedData): Promise<Buffer> {
   data.forEach((row) => {
     const rowValues = includedColumns.map((key) => {
       const value = row[key];
+      if (typeof value === "number") {
+        return formatCurrency(value, useParenthesesForNegative);
+      }
       // ExcelJS handles dates and nulls gracefully
       return value;
     });

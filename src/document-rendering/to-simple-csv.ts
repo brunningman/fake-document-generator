@@ -1,3 +1,5 @@
+import { formatCurrency } from "./common.js";
+
 // Helper to quote CSV fields if they contain commas or quotes
 function escapeCsvField(field: any): string {
   if (field === null || field === undefined) {
@@ -18,12 +20,14 @@ interface SimpleCsvInput<T> {
   headers: Record<keyof T, string>;
   data: T[];
   includedColumns: (keyof T)[];
+  useParenthesesForNegative: boolean;
 }
 
 export function renderToSimpleCsv<T extends Record<string, any>>(
   csvInput: SimpleCsvInput<T>
 ): string {
-  const { headers, data, includedColumns } = csvInput;
+  const { headers, data, includedColumns, useParenthesesForNegative } =
+    csvInput;
 
   let csv = "";
 
@@ -35,6 +39,9 @@ export function renderToSimpleCsv<T extends Record<string, any>>(
   data.forEach((row) => {
     const rowValues = includedColumns.map((key) => {
       const value = row[key];
+      if (typeof value === "number") {
+        return formatCurrency(value, useParenthesesForNegative);
+      }
       return escapeCsvField(value);
     });
     csv += `${rowValues.join(",")}\n`;
