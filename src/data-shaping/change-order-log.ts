@@ -78,16 +78,44 @@ export function shapeChangeOrderLog(count: number): ShapedData {
   }
 
   // Generate headers for the selected columns
-  const headers = includedColumns.reduce((acc, key) => {
+  const headers: Record<string, string> = {};
+  const generatedHeaders: { key: keyof ChangeOrder; header: string }[] = [];
+
+  // First pass: generate all headers
+  for (const key of includedColumns) {
     const poolItem = masterColumnPool[key];
     if (poolItem) {
       const variants = poolItem.variants;
-      acc[key] = [poolItem.header, ...variants][
+      const header = [poolItem.header, ...variants][
         Math.floor(Math.random() * (variants.length + 1))
       ]!;
+      generatedHeaders.push({ key, header });
     }
-    return acc;
-  }, {} as Record<string, string>);
+  }
+
+  // Second pass: process for duplicates
+  const headerCounts: Record<string, number> = {};
+  for (const item of generatedHeaders) {
+    const currentCount = headerCounts[item.header] || 0;
+    if (currentCount > 0) {
+      // This is a duplicate
+      if (currentCount === 1) {
+        // Find the first item and suffix it with _1
+        const firstItem = generatedHeaders.find(
+          (h) => h.header === item.header
+        );
+        if (firstItem) {
+          headers[firstItem.key] = `${firstItem.header}_1`;
+        }
+      }
+      // Suffix the current item with the next number
+      headers[item.key] = `${item.header}_${currentCount + 1}`;
+    } else {
+      // Not a duplicate yet
+      headers[item.key] = item.header;
+    }
+    headerCounts[item.header] = currentCount + 1;
+  }
 
   const changeOrders: ChangeOrder[] = [];
   const coNumPrefix = ["PCO-", "CO ", ""][Math.floor(Math.random() * 3)];
