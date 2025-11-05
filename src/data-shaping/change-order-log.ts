@@ -105,12 +105,11 @@ export function shapeChangeOrderLog(count: number): ShapedData {
 
     // Generate status first to drive date logic
     if (includedColumns.includes("status")) {
-      const statuses = ["Submitted", "In Review", "Approved", "Void", null];
+      const statuses = ["Submitted", "In Review", "Approved", "Void", ""];
       order.status = statuses[Math.floor(Math.random() * statuses.length)] as
-        | string
-        | null;
+        | string;
     } else {
-      order.status = null;
+      order.status = "";
     }
 
     // Handle date logic based on status or other date fields

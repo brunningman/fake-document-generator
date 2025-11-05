@@ -12,9 +12,12 @@ export function renderToJson(shapedData: ShapedData): string {
       if (header) {
         const value = row[key];
         if (value instanceof Date) {
-          rowData[header] = value.toLocaleDateString("en-US");
+          const month = (value.getMonth() + 1).toString().padStart(2, "0");
+          const day = value.getDate().toString().padStart(2, "0");
+          const year = value.getFullYear();
+          rowData[header] = `${month}/${day}/${year}`;
         } else if (typeof value === "number") {
-          rowData[header] = value;
+          rowData[header] = parseFloat(value.toFixed(2));
         } else {
           rowData[header] = value;
         }

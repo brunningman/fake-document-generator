@@ -18,10 +18,10 @@ async function main() {
 
   console.log("Starting batch generation of change order logs...");
   const suffixes = ["A", "B", "C", "D", "E"];
-  for (const suffix of suffixes) {
-    for (const rows of rowCounts) {
-      console.log(`\nGenerating dataset for ${rows} rows...`);
-
+  for (const rows of rowCounts) {
+    const dataset = [];
+    console.log(`\nGenerating dataset for ${rows} rows...`);
+    for (const suffix of suffixes) {
       // 1. Generate the dataset ONCE for this size
       const shapedData = shapeChangeOrderLog(rows);
 
@@ -67,7 +67,18 @@ async function main() {
       const jsonPath = path.join(outputDir, `${baseFileName}.json`);
       await fs.writeFile(jsonPath, jsonContent);
       console.log(`  - Created ${jsonPath}`);
+
+      dataset.push({
+        input: {
+          bucket: "dev-ai-workflows",
+          originalFileUrl: `genkit-test-files/${baseFileName}.pdf`,
+        },
+        reference: JSON.parse(jsonContent),
+      });
     }
+    const datasetPath = path.join(outputDir, `dataset-${rows}-rows.json`);
+    await fs.writeFile(datasetPath, JSON.stringify(dataset, null, 2));
+    console.log(`  - Created ${datasetPath}`);
   }
 
   console.log("\nBatch generation complete.");
