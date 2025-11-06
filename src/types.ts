@@ -5,7 +5,7 @@ export interface ChangeOrder {
   pcoNum?: string; // Can be a number or string like "-012"
   status?: string | null;
   description?: string;
-  quoteDate?: Date | null;
+  quoteDate?: string | null;
   totalQuote?: number | null; // Formatted currency
 
   // Optional & Mixed Fields from both samples
@@ -13,20 +13,20 @@ export interface ChangeOrder {
   bmbPcoNum?: number | string;
   quoteType?: string | null;
   ownerCONum?: string | null;
-  ownerCODate?: Date | null;
+  ownerCODate?: string | null;
   ownerCOValue?: number | null;
   notes?: string | null;
   cwPropNum?: number;
   gcPropNum?: number | null;
-  dateSent?: Date;
+  dateSent?: string;
   amountSent?: number;
   daysPending?: number | null;
   amountApproved?: number | null;
   amountPending?: number;
   gcCO?: string | null;
-  approvedDate?: Date | null;
-  coIssuedDate?: Date | null;
-  voidDate?: Date | null;
+  approvedDate?: string | null;
+  coIssuedDate?: string | null;
+  voidDate?: string | null;
 }
 
 export type ShapedData = {

@@ -1,7 +1,9 @@
 import type { ShapedData } from "../types.js";
+import { formatCurrency } from "./common.js";
 
 export function renderToJson(shapedData: ShapedData): string {
-  const { headers, data, includedColumns } = shapedData;
+  const { headers, data, includedColumns, useParenthesesForNegative } =
+    shapedData;
 
   const headerValues = includedColumns.map((key) => headers[key] ?? "");
 
@@ -13,13 +15,18 @@ export function renderToJson(shapedData: ShapedData): string {
         const value = row[key];
         if (value === null || value === undefined) {
           rowData[header] = "";
-        } else if (value instanceof Date) {
-          const month = (value.getMonth() + 1).toString().padStart(2, "0");
-          const day = value.getDate().toString().padStart(2, "0");
-          const year = value.getFullYear();
-          rowData[header] = `${month}/${day}/${year}`;
         } else if (typeof value === "number") {
-          rowData[header] = parseFloat(value.toFixed(2));
+          const columnKey = includedColumns.find(
+            (key) => headers[key] === header
+          );
+          const isCurrency =
+            columnKey &&
+            (columnKey === "totalQuote" || columnKey === "amountApproved");
+          if (isCurrency) {
+            rowData[header] = formatCurrency(value, useParenthesesForNegative);
+          } else {
+            rowData[header] = value.toString();
+          }
         } else {
           rowData[header] = value;
         }

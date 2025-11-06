@@ -38,9 +38,6 @@ export function renderToCsv(shapedData: ShapedData): string {
   data.forEach((row) => {
     const rowValues = includedColumns.map((key) => {
       const value = row[key];
-      if (value instanceof Date) {
-        return value.toISOString().split("T");
-      }
       if (typeof value === "number") {
         return formatCurrency(value, useParenthesesForNegative);
       }

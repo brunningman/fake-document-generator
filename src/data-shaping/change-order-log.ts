@@ -62,6 +62,8 @@ export function shapeChangeOrderLog(count: number): ShapedData {
   const generalContractor = generateCompanyName();
   const project = `Project ${generateId()}`;
   const useParenthesesForNegative = generateBoolean();
+  const useLeadingZeroForMonthAndDay = generateBoolean();
+  const useFullYear = useLeadingZeroForMonthAndDay ? true : generateBoolean();
 
   // Randomly select a subset of columns for this run
   const columnKeys = Object.keys(masterColumnPool) as (keyof ChangeOrder)[];
@@ -121,6 +123,20 @@ export function shapeChangeOrderLog(count: number): ShapedData {
   const coNumPrefix = ["PCO-", "CO ", ""][Math.floor(Math.random() * 3)];
   let coNumCounter = 1;
 
+  const formatDate = (date: Date | null): string | null => {
+    if (!date) return null;
+    const month = useLeadingZeroForMonthAndDay
+      ? (date.getMonth() + 1).toString().padStart(2, "0")
+      : (date.getMonth() + 1).toString();
+    const day = useLeadingZeroForMonthAndDay
+      ? date.getDate().toString().padStart(2, "0")
+      : date.getDate().toString();
+    const year = useFullYear
+      ? date.getFullYear()
+      : date.getFullYear().toString().slice(-2);
+    return `${month}/${day}/${year}`;
+  };
+
   for (let i = 0; i < count; i++) {
     const order = {} as ChangeOrder;
     let amount = Number(generateCurrencyAmount().toFixed(2));
@@ -142,20 +158,21 @@ export function shapeChangeOrderLog(count: number): ShapedData {
 
     // Handle date logic based on status or other date fields
     const hasStatus = includedColumns.includes("status");
-    order.quoteDate = generateDateRecent(); // Always generate a quote date
+
+    order.quoteDate = formatDate(generateDateRecent()); // Always generate a quote date
 
     if (
       (hasStatus && order.status === "Approved") ||
       (!hasStatus && generateBoolean())
     ) {
-      order.approvedDate = generateDateRecent();
+      order.approvedDate = formatDate(generateDateRecent());
       order.voidDate = null;
       if (hasStatus) order.status = "Approved";
     } else if (
       (hasStatus && order.status === "Void") ||
       (!hasStatus && generateBoolean())
     ) {
-      order.voidDate = generateDateRecent();
+      order.voidDate = formatDate(generateDateRecent());
       order.approvedDate = null;
       if (hasStatus) order.status = "Void";
     } else {
@@ -203,7 +220,7 @@ export function shapeChangeOrderLog(count: number): ShapedData {
     }
     if (includedColumns.includes("coIssuedDate")) {
       order.coIssuedDate =
-        order.status === "Approved" ? generateDateRecent() : null;
+        order.status === "Approved" ? formatDate(generateDateRecent()) : null;
     }
 
     // Null out fields that are not included in this run
@@ -231,7 +248,7 @@ export function shapeChangeOrderLog(count: number): ShapedData {
       `Project: ${project}`,
       `To: ${generalContractor}`,
       `From: ${subcontractor}`,
-      `Date: ${generateDateRecent().toLocaleDateString()}`,
+      `Date: ${formatDate(generateDateRecent())}`,
     ];
     // Randomly shuffle and pick a subset of lines
     const shuffledLines = headerLines.sort(() => 0.5 - Math.random());

@@ -26,9 +26,6 @@ export function createChangeOrderLogHtml(shapedData: ShapedData): string {
         .map((key) => {
           const value = row[key];
           // Handle date formatting and null/undefined values
-          if (value instanceof Date) {
-            return `<td>${value.toISOString().split("T")[0]}</td>`;
-          }
           if (typeof value === "number") {
             return `<td>${formatCurrency(
               value,
