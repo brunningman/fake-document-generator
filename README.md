@@ -35,7 +35,7 @@ The generator uses a modular, four-layer architecture:
 
 - Node.js (v18 or higher recommended)
 - npm
-- Playwright (run `npx playwright install`)
+- Playwright
 
 ### Installation
 
@@ -43,6 +43,7 @@ The generator uses a modular, four-layer architecture:
 2.  Install the dependencies:
     ```bash
     npm install
+    npx playwright install
     ```
 
 ### Generating Documents
