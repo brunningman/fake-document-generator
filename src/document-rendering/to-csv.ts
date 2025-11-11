@@ -39,7 +39,7 @@ export function renderToCsv(shapedData: ShapedData): string {
     const rowValues = includedColumns.map((key) => {
       const value = row[key];
       if (typeof value === "number") {
-        return formatCurrency(value, useParenthesesForNegative);
+        return escapeCsvField(formatCurrency(value, useParenthesesForNegative));
       }
       return escapeCsvField(value);
     });
