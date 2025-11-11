@@ -35,6 +35,7 @@ The generator uses a modular, four-layer architecture:
 
 - Node.js (v18 or higher recommended)
 - npm
+- Playwright (run `npx playwright install`)
 
 ### Installation
 
